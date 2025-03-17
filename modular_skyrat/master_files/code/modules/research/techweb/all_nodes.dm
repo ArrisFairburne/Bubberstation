@@ -63,6 +63,7 @@
 		"synth_stomach",
 		"synth_ears",
 		"synth_heart",
+		"empshield_skin",
 	)
 
 // MODULAR ADDITIONS AND REMOVALS

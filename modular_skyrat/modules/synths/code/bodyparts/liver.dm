@@ -18,14 +18,19 @@
 	if(!COOLDOWN_FINISHED(src, severe_cooldown)) //So we cant just spam emp to kill people.
 		COOLDOWN_START(src, severe_cooldown, 10 SECONDS)
 
+	var/damage_multiplier = 1.0;
+	if(istype(owner.organs_slot(ORGAN_SLOT_SUBDERMAL), /obj/item/organ/cyberimp/empshield_skin))
+		var/item/organ/cyberimp/empshield_skin/implant = owner.organs_slot(ORGAN_SLOT_SUBDERMAL)
+		damage_multiplier = implant.emp_damage_multiplier
+
 	switch(severity)
 		if(EMP_HEAVY)
 			to_chat(owner, span_warning("Alert: Critical! Reagent processing unit failure, seek maintenance immediately. Error Code: DR-1k"))
-			apply_organ_damage(SYNTH_ORGAN_HEAVY_EMP_DAMAGE, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
+			apply_organ_damage(SYNTH_ORGAN_HEAVY_EMP_DAMAGE * damage_multiplier, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
 
 		if(EMP_LIGHT)
 			to_chat(owner, span_warning("Alert: Reagent processing unit failure, seek maintenance for diagnostic. Error Code: DR-0k"))
-			apply_organ_damage(SYNTH_ORGAN_LIGHT_EMP_DAMAGE, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
+			apply_organ_damage(SYNTH_ORGAN_LIGHT_EMP_DAMAGE * damage_multiplier, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
 
 /datum/design/synth_liver
 	name = "Reagent Processing Unit"

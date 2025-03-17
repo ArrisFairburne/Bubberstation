@@ -20,13 +20,18 @@
 	if(!COOLDOWN_FINISHED(src, severe_cooldown)) //So we cant just spam emp to kill people.
 		COOLDOWN_START(src, severe_cooldown, 10 SECONDS)
 
+	var/damage_multiplier = 1.0;
+	if(istype(owner.organs_slot(ORGAN_SLOT_SUBDERMAL), /obj/item/organ/cyberimp/empshield_skin))
+		var/item/organ/cyberimp/empshield_skin/implant = owner.organs_slot(ORGAN_SLOT_SUBDERMAL)
+		damage_multiplier = implant.emp_damage_multiplier
+
 	switch(severity)
 		if(EMP_HEAVY)
-			adjustEarDamage(SYNTH_ORGAN_HEAVY_EMP_DAMAGE, SYNTH_DEAF_STACKS)
+			adjustEarDamage(SYNTH_ORGAN_HEAVY_EMP_DAMAGE * damage_multiplier, SYNTH_DEAF_STACKS)
 			to_chat(owner, span_warning("Alert: Null feedback from auditory sensors detected, seek maintenance immediately. Error Code: AS-105"))
 
 		if(EMP_LIGHT)
-			adjustEarDamage(SYNTH_ORGAN_LIGHT_EMP_DAMAGE, SYNTH_DEAF_STACKS)
+			adjustEarDamage(SYNTH_ORGAN_LIGHT_EMP_DAMAGE * damage_multiplier, SYNTH_DEAF_STACKS)
 			to_chat(owner, span_warning("Alert: Anomalous feedback from auditory sensors detected. Error Code: AS-50"))
 
 /datum/design/synth_ears

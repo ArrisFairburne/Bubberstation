@@ -23,15 +23,20 @@
 	if(!COOLDOWN_FINISHED(src, severe_cooldown)) //So we cant just spam emp to kill people.
 		COOLDOWN_START(src, severe_cooldown, 10 SECONDS)
 
+	var/damage_multiplier = 1.0;
+	if(istype(owner.organs_slot(ORGAN_SLOT_SUBDERMAL), /obj/item/organ/cyberimp/empshield_skin))
+		var/item/organ/cyberimp/empshield_skin/implant = owner.organs_slot(ORGAN_SLOT_SUBDERMAL)
+		damage_multiplier = implant.emp_damage_multiplier
+
 	switch(severity)
 		if(EMP_HEAVY)
 			to_chat(owner, span_warning("Alert: Critical cooling system failure! Seek maintenance immediately. Error Code: 5H-17"))
-			apply_organ_damage(SYNTH_ORGAN_HEAVY_EMP_DAMAGE, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
+			apply_organ_damage(SYNTH_ORGAN_HEAVY_EMP_DAMAGE * damage_multiplier, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
 			owner.adjust_bodytemperature(SYNTH_HEAVY_EMP_TEMPERATURE_POWER * TEMPERATURE_DAMAGE_COEFFICIENT)
 
 		if(EMP_LIGHT)
 			to_chat(owner, span_warning("Alert: Major cooling system failure!"))
-			apply_organ_damage(SYNTH_ORGAN_LIGHT_EMP_DAMAGE, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
+			apply_organ_damage(SYNTH_ORGAN_LIGHT_EMP_DAMAGE * damage_multiplier, maxHealth, required_organ_flag = ORGAN_ROBOTIC)
 			owner.adjust_bodytemperature(SYNTH_LIGHT_EMP_TEMPERATURE_POWER * TEMPERATURE_DAMAGE_COEFFICIENT)
 
 /datum/design/synth_heatsink

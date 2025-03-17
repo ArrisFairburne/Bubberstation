@@ -124,6 +124,7 @@ SUBSYSTEM_DEF(research)
 	return techweb_nodes[id] || error_node
 
 /datum/controller/subsystem/research/proc/techweb_design_by_id(id)
+	var/list/asdf = techweb_designs
 	return techweb_designs[id] || error_design
 
 /datum/controller/subsystem/research/proc/on_design_deletion(datum/design/D)
