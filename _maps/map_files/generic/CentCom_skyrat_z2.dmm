@@ -4903,7 +4903,6 @@
 /obj/machinery/door/airlock/security/glass{
 	name = "Interlink Security Post"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/security/general,
 /obj/effect/turf_decal/tile/red/opposingcorners,
 /obj/effect/turf_decal/siding/white{
 	dir = 8
@@ -5256,6 +5255,7 @@
 /obj/effect/turf_decal/siding/wood/corner{
 	dir = 8
 	},
+/obj/machinery/light/directional/north,
 /turf/open/floor/wood/tile,
 /area/centcom/interlink)
 "bZt" = (
@@ -5859,7 +5859,6 @@
 /obj/effect/turf_decal/siding/white{
 	dir = 8
 	},
-/obj/effect/mapping_helpers/airlock/access/any/cent_com/rep_or_captain,
 /turf/open/floor/iron,
 /area/centcom/interlink)
 "cPo" = (
@@ -6447,8 +6446,10 @@
 /turf/open/floor/iron/white,
 /area/centcom/interlink)
 "dPx" = (
-/obj/effect/spawner/random/vending/colavend,
 /obj/effect/turf_decal/bot,
+/obj/machinery/vending/imported{
+	shut_up = 1
+	},
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
 "dPJ" = (
@@ -6709,7 +6710,9 @@
 	},
 /area/cruiser_dock)
 "enb" = (
-/obj/machinery/vending/cigarette,
+/obj/machinery/vending/cigarette{
+	shut_up = 1
+	},
 /obj/effect/turf_decal/bot,
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
@@ -8237,7 +8240,6 @@
 /obj/machinery/door/airlock/medical{
 	name = "Interlink Medical Cold Room"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/medical/general,
 /obj/effect/turf_decal/siding/white,
 /turf/open/floor/iron/white,
 /area/centcom/interlink)
@@ -10319,7 +10321,9 @@
 /turf/open/floor/iron,
 /area/centcom/interlink)
 "jsY" = (
-/obj/machinery/vending/games,
+/obj/machinery/vending/games{
+	shut_up = 1
+	},
 /obj/machinery/light/small/directional/west,
 /obj/effect/turf_decal/bot,
 /turf/open/floor/iron/dark,
@@ -11208,7 +11212,6 @@
 /obj/machinery/door/airlock/service{
 	name = "Interlink Bar"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/service/kitchen,
 /turf/open/floor/iron/cafeteria,
 /area/centcom/interlink)
 "kNU" = (
@@ -11718,6 +11721,7 @@
 	dir = 8
 	},
 /obj/structure/table/wood,
+/obj/machinery/light/directional/north,
 /turf/open/floor/wood/tile,
 /area/centcom/interlink)
 "lzr" = (
@@ -11816,7 +11820,6 @@
 /obj/effect/turf_decal/siding/white{
 	dir = 4
 	},
-/obj/effect/mapping_helpers/airlock/access/all/command/general,
 /turf/open/floor/iron,
 /area/centcom/interlink)
 "lHD" = (
@@ -12067,6 +12070,12 @@
 	},
 /turf/open/floor/wood/tile,
 /area/centcom/interlink)
+"lWF" = (
+/obj/effect/turf_decal/siding/wood,
+/obj/structure/chair/sofa/middle/brown,
+/obj/machinery/light/directional/north,
+/turf/open/floor/wood/tile,
+/area/centcom/interlink)
 "lWZ" = (
 /obj/structure/table{
 	name = "Jim Norton's Quebecois Coffee table"
@@ -12131,7 +12140,6 @@
 /obj/machinery/door/airlock/medical{
 	name = "Interlink Operating Room"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/medical/general,
 /obj/machinery/duct,
 /turf/open/floor/iron/white,
 /area/centcom/interlink)
@@ -14952,7 +14960,6 @@
 /obj/machinery/door/airlock/freezer{
 	name = "Freezer"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/service/kitchen,
 /turf/open/floor/iron/freezer,
 /area/centcom/interlink)
 "pFf" = (
@@ -14964,7 +14971,6 @@
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
 "pFr" = (
-/obj/effect/mapping_helpers/airlock/access/all/security/general,
 /obj/machinery/door/airlock/security{
 	name = "Interlink Security Processing"
 	},
@@ -15173,8 +15179,10 @@
 /turf/open/floor/iron/smooth,
 /area/centcom/interlink)
 "pNJ" = (
-/obj/effect/spawner/random/vending/snackvend,
 /obj/effect/turf_decal/bot,
+/obj/machinery/vending/cola/red{
+	shut_up = 1
+	},
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
 "pOS" = (
@@ -17314,7 +17322,6 @@
 /obj/machinery/door/airlock/service{
 	name = "Interlink Kitchen"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/service/bar,
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
 "stk" = (
@@ -17752,7 +17759,6 @@
 /obj/machinery/door/airlock/medical{
 	name = "Interlink Operating Room"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/medical/surgery,
 /turf/open/floor/iron/white,
 /area/centcom/interlink)
 "sTH" = (
@@ -18038,7 +18044,6 @@
 /obj/machinery/door/airlock/security/glass{
 	name = "Interlink Security Post"
 	},
-/obj/effect/mapping_helpers/airlock/access/all/security/general,
 /obj/effect/turf_decal/tile/red/opposingcorners,
 /obj/effect/turf_decal/siding/white{
 	dir = 4
@@ -20180,7 +20185,6 @@
 /obj/effect/turf_decal/siding/white{
 	dir = 4
 	},
-/obj/effect/mapping_helpers/airlock/access/any/cent_com/rep_or_captain,
 /turf/open/floor/iron,
 /area/centcom/interlink)
 "wzw" = (
@@ -20209,7 +20213,9 @@
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
 "wAE" = (
-/obj/machinery/vending/coffee,
+/obj/machinery/vending/coffee{
+	shut_up = 1
+	},
 /obj/effect/turf_decal/bot,
 /turf/open/floor/iron/dark,
 /area/centcom/interlink)
@@ -33650,7 +33656,7 @@ hvQ
 hvQ
 hvQ
 tvw
-nKt
+lWF
 thr
 iPU
 iPU
