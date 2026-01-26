@@ -19,6 +19,7 @@ GLOBAL_ALIST_INIT(huds, alist(
 	DATA_HUD_FAN = new /datum/atom_hud/data/human/fan_hud(),
 	DATA_HUD_MALF_APC = new /datum/atom_hud/data/malf_apc(),
 	DATA_HUD_PERMIT = new /datum/atom_hud/data/human/permit(), // SKYRAT EDIT ADDITION
+	DATA_HUD_NEWBIE = new /datum/atom_hud/data/human/newbie_hud(),
 ))
 
 /// Assoc list of traits to the huds they give.

@@ -1,0 +1,1 @@
+#define NEWBIE_HOURS 20
