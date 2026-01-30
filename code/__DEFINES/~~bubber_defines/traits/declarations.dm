@@ -60,3 +60,6 @@
 
 // For Bloodsuckers/Hemophages that vomit blood
 #define TRAIT_STOMACH_BLOOD_VOMIT "stomach_blood_vomit"
+
+// so that players can see the newbie badge
+#define TRAIT_NEWBIE_NOTICER "newbie_noticer"

@@ -1,16 +1,18 @@
 /obj/item/clothing/accessory/newbie_badge
-	name = "\improper New Hire Badge"
-	desc = "A badge typically attached onto the uniform of new employees at the Bubber sector of Nanotrasen."
+	name = "\improper Shoshinsha Badge"
+	desc = "A shiny enamel pin typically attached onto the uniform of new employees at the Bubber sector of Nanotrasen."
+	icon = 'modular_zubbers/icons/obj/clothing/accessories.dmi'
+	icon_state = "shoshinsha_badge"
 
 /obj/item/clothing/accessory/newbie_badge/accessory_equipped(obj/item/clothing/under/clothes, mob/living/user)
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_equipper = user
-		human_equipper.newbie_hud_set()
+		human_equipper.newbie_hud_set_badge()
 
 /obj/item/clothing/accessory/newbie_badge/accessory_dropped(obj/item/clothing/under/clothes, mob/living/user)
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_equipper = user
-		human_equipper.newbie_hud_set()
+		human_equipper.newbie_hud_set_badge()
 
 /mob/living/carbon/human/proc/newbie_hud_set_badge()
 	var/obj/item/clothing/under/undershirt = w_uniform
@@ -19,10 +21,18 @@
 		return
 
 	set_hud_image_active(NEWBIE_HUD)
-	if(is_type_in_list(undershirt.attached_accessories, /obj/item/clothing/accessory/newbie_badge))
-		set_hud_image_state(NEWBIE_HUD, "clown_enjoyer_pin")
+	if(is_path_in_list(/obj/item/clothing/accessory/newbie_badge, undershirt.attached_accessories))
+		set_hud_image_state(NEWBIE_HUD, "shoshinsha_badge")
 	else
 		set_hud_image_state(NEWBIE_HUD, "hudfan_no")
 
 /datum/atom_hud/data/human/newbie_hud
 	hud_icons = list(NEWBIE_HUD)
+
+/mob/living/Initialize(mapload)
+	..()
+	ADD_TRAIT(usr, TRAIT_NEWBIE_NOTICER, INNATE_TRAIT)
+
+/mob/living/carbon/human/prepare_data_huds()
+	. = ..()
+	newbie_hud_set_badge()
