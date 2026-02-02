@@ -7,6 +7,9 @@
 /obj/item/interlink_pass
 	name = "Interlink access pass"
 	desc = "A pass giving early access to Nanotrasen's private lounge planet. New employees may request this pass to their employers."
+	icon = 'icons/obj/fluff/puzzle_small.dmi'
+	icon_state = "keycard"
+	color = "#46daff"
 
 /obj/machinery/door/airlock/interlink_access/bumpopen(mob/user)
 	if (user_has_interlink_access(user))
@@ -17,21 +20,20 @@
 		return ..()
 
 /obj/machinery/door/airlock/interlink_access/proc/user_has_interlink_access(mob/user)
-	if (!isnull(user) && !isnull(user.client))
+	if(!isnull(user) && !isnull(user.client))
 		if (user.client.get_exp_living(pure_numeric = TRUE) > NEWBIE_HOURS || (!isnull(user.contents) && is_path_in_list(/obj/item/interlink_pass, user.contents)) || unrestricted_side(user))
 			return TRUE
-		else
-			to_chat(user, span_notice("You may only access the company's private lounge planet after working for a life total of [NEWBIE_HOURS] hours! You have currently worked for [user.client.get_exp_living(pure_numeric = TRUE)] hours. You may also file a request to CentCom for early access."))
-			run_animation(DOOR_DENY_ANIMATION)
-			return FALSE
-	else
+
+	if(airlock_state == AIRLOCK_CLOSED)
+		to_chat(user, span_notice("You may only access the company's private lounge planet after working for a life total of [NEWBIE_HOURS] hours! You have currently worked for [user.client.get_exp_living(pure_numeric = TRUE)] hours. You may ask another crew member for their access, or file a request to CentCom for early access."))
 		run_animation(DOOR_DENY_ANIMATION)
-		return FALSE
+	return FALSE
+
 
 /obj/machinery/door/airlock/interlink_access/public
 	name = "public airlock"
-	icon = 'icons/obj/doors/airlocks/public/glass.dmi'
-	overlays_file = 'icons/obj/doors/airlocks/public/overlays.dmi'
+	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/station2/glass.dmi'
+	overlays_file = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/station2/overlays.dmi'
 
 /obj/machinery/door/airlock/interlink_access/public/glass
 	name = "public glass airlock"
@@ -40,7 +42,7 @@
 
 /obj/machinery/door/airlock/interlink_access/security
 	name = "security airlock"
-	icon = 'icons/obj/doors/airlocks/station/security.dmi'
+	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/station/security.dmi'
 
 /obj/machinery/door/airlock/interlink_access/security/glass
 	name = "security glass airlock"
@@ -49,7 +51,7 @@
 
 /obj/machinery/door/airlock/interlink_access/medical
 	name = "medical airlock"
-	icon = 'icons/obj/doors/airlocks/station/medical.dmi'
+	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/station/medical.dmi'
 	assemblytype = /obj/structure/door_assembly/door_assembly_med
 
 /obj/machinery/door/airlock/interlink_access/medical/glass
@@ -70,15 +72,21 @@
 /obj/machinery/door/airlock/interlink_access/corporate
 	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/station/corporate.dmi'
 
+/obj/machinery/door/airlock/interlink_access/corporate/glass
+	opacity = FALSE
+	glass = TRUE
+
+/obj/machinery/door/airlock/interlink_access/freezer
+	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/station/freezer.dmi'
+
 /obj/machinery/door/airlock/interlink_access/centcom //Use grunge as a station side version, as these have special effects related to them via phobias and such.
-	icon = 'icons/obj/doors/airlocks/centcom/centcom.dmi'
-	overlays_file = 'icons/obj/doors/airlocks/centcom/overlays.dmi'
+	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/centcom/centcom.dmi'
+	overlays_file = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/centcom/overlays.dmi'
 	can_be_glass = FALSE
 
 /obj/machinery/door/airlock/interlink_access/multi_tile
-	icon = 'icons/obj/doors/airlocks/multi_tile/public/glass.dmi'
-	overlays_file = 'icons/obj/doors/airlocks/multi_tile/public/overlays.dmi'
-	assemblytype = /obj/structure/door_assembly/multi_tile/door_assembly_public
+	icon = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/multi_tile/glass.dmi'
+	overlays_file = 'modular_skyrat/modules/aesthetics/airlock/icons/airlocks/multi_tile/glass_overlays.dmi'
 	multi_tile = TRUE
 	opacity = FALSE
 	glass = TRUE

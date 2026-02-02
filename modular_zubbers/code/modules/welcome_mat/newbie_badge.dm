@@ -2,14 +2,17 @@
 	name = "\improper Shoshinsha Badge"
 	desc = "A shiny enamel pin typically attached onto the uniform of new employees at the Bubber sector of Nanotrasen."
 	icon = 'modular_zubbers/icons/obj/clothing/accessories.dmi'
+	worn_icon = 'modular_zubbers/icons/mob/clothing/accessories.dmi'
 	icon_state = "shoshinsha_badge"
 
 /obj/item/clothing/accessory/newbie_badge/accessory_equipped(obj/item/clothing/under/clothes, mob/living/user)
+	..()
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_equipper = user
 		human_equipper.newbie_hud_set_badge()
 
 /obj/item/clothing/accessory/newbie_badge/accessory_dropped(obj/item/clothing/under/clothes, mob/living/user)
+	..()
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_equipper = user
 		human_equipper.newbie_hud_set_badge()
@@ -36,3 +39,13 @@
 /mob/living/carbon/human/prepare_data_huds()
 	. = ..()
 	newbie_hud_set_badge()
+
+/datum/job/after_spawn(mob/living/spawned, client/player_client)
+	. = ..(spawned, player_client)
+	var/mob/living/carbon/human/human_spawned = spawned
+	if(!istype(spawned))
+		return
+
+	var/obj/item/clothing/under/underclothing = human_spawned.w_uniform
+	if(istype(underclothing) && player_client.get_exp_living(pure_numeric = TRUE) < NEWBIE_HOURS)
+		underclothing.attach_accessory(SSwardrobe.provide_type(/obj/item/clothing/accessory/newbie_badge, spawned))
