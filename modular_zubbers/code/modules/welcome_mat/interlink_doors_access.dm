@@ -12,11 +12,15 @@
 	color = "#46daff"
 
 /obj/machinery/door/airlock/interlink_access/bumpopen(mob/user)
-	if (user_has_interlink_access(user))
+	if(user_has_interlink_access(user))
+		return ..()
+
+/obj/machinery/door/airlock/interlink_access/Bumped(atom/movable/AM)
+	if(istype(AM, /mob/living))
 		return ..()
 
 /obj/machinery/door/airlock/interlink_access/try_to_activate_door(mob/living/user, access_bypass = FALSE)
-	if (user_has_interlink_access(user))
+	if(user_has_interlink_access(user))
 		return ..()
 
 /obj/machinery/door/airlock/interlink_access/proc/user_has_interlink_access(mob/user)
