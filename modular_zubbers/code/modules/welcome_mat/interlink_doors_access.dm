@@ -21,11 +21,11 @@
 
 /obj/machinery/door/airlock/interlink_access/proc/user_has_interlink_access(mob/user)
 	if(!isnull(user) && !isnull(user.client))
-		if (user.client.get_exp_living(pure_numeric = TRUE) > NEWBIE_HOURS || (!isnull(user.contents) && is_path_in_list(/obj/item/interlink_pass, user.contents)) || unrestricted_side(user))
+		if (user.client.get_exp_living(pure_numeric = TRUE) > CONFIG_GET(number/newbie_hours_threshold) * 60 || (!isnull(user.contents) && is_path_in_list(/obj/item/interlink_pass, user.contents)) || unrestricted_side(user))
 			return TRUE
 
 	if(airlock_state == AIRLOCK_CLOSED)
-		to_chat(user, span_notice("You may only access the company's private lounge planet after working for a life total of [NEWBIE_HOURS] hours! You have currently worked for [user.client.get_exp_living(pure_numeric = TRUE)] hours. You may ask another crew member for their access, or file a request to CentCom for early access."))
+		to_chat(user, span_notice("You may only access the company's private lounge planet after working for a life total of [CONFIG_GET(number/newbie_hours_threshold)] hours! You have currently worked for [user.client.get_exp_living(pure_numeric = TRUE) / 60.0] hours. You may ask another crew member for their access, or file a request to CentCom for early access."))
 		run_animation(DOOR_DENY_ANIMATION)
 	return FALSE
 

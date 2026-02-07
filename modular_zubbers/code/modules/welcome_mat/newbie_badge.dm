@@ -47,5 +47,5 @@
 		return
 
 	var/obj/item/clothing/under/underclothing = human_spawned.w_uniform
-	if(istype(underclothing) && player_client.get_exp_living(pure_numeric = TRUE) < NEWBIE_HOURS)
+	if(istype(underclothing) && player_client.get_exp_living(pure_numeric = TRUE) < CONFIG_GET(number/newbie_hours_threshold) * 60)
 		underclothing.attach_accessory(SSwardrobe.provide_type(/obj/item/clothing/accessory/newbie_badge, spawned))
