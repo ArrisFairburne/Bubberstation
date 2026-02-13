@@ -6,7 +6,7 @@
 	icon_state = "shoshinsha_badge"
 
 /obj/item/clothing/accessory/newbie_badge/accessory_equipped(obj/item/clothing/under/clothes, mob/living/user)
-	..()
+	. = ..()
 	if(ishuman(user))
 		var/mob/living/carbon/human/human_equipper = user
 		human_equipper.newbie_hud_set_badge()
