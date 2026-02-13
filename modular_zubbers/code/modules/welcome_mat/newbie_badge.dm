@@ -33,7 +33,7 @@
 	hud_icons = list(NEWBIE_HUD)
 
 /mob/living/Initialize(mapload)
-	..()
+	. = ..()
 	ADD_TRAIT(usr, TRAIT_NEWBIE_NOTICER, INNATE_TRAIT)
 
 /mob/living/carbon/human/prepare_data_huds()
