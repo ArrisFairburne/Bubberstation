@@ -34,11 +34,7 @@
 
 /mob/living/Initialize(mapload)
 	. = ..()
-	ADD_TRAIT(usr, TRAIT_NEWBIE_NOTICER, INNATE_TRAIT)
-
-/mob/living/carbon/human/prepare_data_huds()
-	. = ..()
-	newbie_hud_set_badge()
+	ADD_TRAIT(src, TRAIT_NEWBIE_NOTICER, INNATE_TRAIT)
 
 /datum/job/after_spawn(mob/living/spawned, client/player_client)
 	. = ..(spawned, player_client)
