@@ -80,11 +80,11 @@
 	data["self_paid"] = !!self_paid
 	data["armaments_list"] = list()
 
-	for(var/armament_category as anything in SSarmaments.entries)
+	for(var/armament_category in SSarmaments.entries)
 
 		var/list/armament_subcategories = list()
 
-		for(var/subcategory as anything in SSarmaments.entries[armament_category][CATEGORY_ENTRY])
+		for(var/subcategory in SSarmaments.entries[armament_category][CATEGORY_ENTRY])
 			var/list/subcategory_items = list()
 			for(var/datum/armament_entry/armament_entry as anything in SSarmaments.entries[armament_category][CATEGORY_ENTRY][subcategory])
 				if(products && !(armament_entry.type in products))
@@ -250,7 +250,7 @@
 	if(buyer != SSeconomy.get_dep_account(ACCOUNT_CAR))
 		created_order = new(created_pack, name, rank, ckey, paying_account = buyer, reason = reason, can_be_cancelled = TRUE)
 	else
-		created_pack.goody = FALSE // Cargo ordered stuff should just show up in a box I think
+		// Cargo ordered stuff should just show up in a box I think
 		created_order = new(created_pack, name, rank, ckey, reason = reason, can_be_cancelled = TRUE)
 	created_order.selected_entry = armament_entry
 	created_order.used_component = src
