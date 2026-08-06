@@ -9,7 +9,7 @@
 	max_wizard_trigger_potency = 6
 	tags = list(TAG_COMMUNAL, TAG_COMBAT)
 
-/datum/round_event/vent_clog/critical/setup()
+/datum/round_event/vent_clog/extreme/setup()
 	. = ..()
 	spawn_delay = rand(15,25)
 	maximum_spawns = rand(4, 6)
@@ -18,11 +18,11 @@
 		/obj/effect/decal/cleanable/blood/splatter,
 	)
 
-/datum/round_event/vent_clog/critical/announce(fake)
+/datum/round_event/vent_clog/extreme/announce(fake)
 	var/area/event_area = fake ? pick(GLOB.teleportlocs) : get_area_name(vent)
 	priority_announce("Extremely dangerous lifesigns detected in the [event_area] ventilation network.", "Security Alert", color_override = "yellow")
 
-/datum/round_event/vent_clog/critical/get_mob()
+/datum/round_event/vent_clog/extreme/get_mob()
 	var/static/list/mob_list = list(
 		/mob/living/basic/cockroach/glockroach/mobroach,
 		/mob/living/basic/bear,
