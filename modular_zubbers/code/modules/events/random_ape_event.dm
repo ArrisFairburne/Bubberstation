@@ -7,7 +7,7 @@
 	description = "Sends one violent gorilla to the station."
 	min_wizard_trigger_potency = 3
 	max_wizard_trigger_potency = 6
-	tags = list(TAG_COMMUNAL, TAG_COMBAT)
+	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
 
 /datum/round_event/stray_cargo/ape_escape
 	announce_when = 0

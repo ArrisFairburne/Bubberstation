@@ -7,7 +7,7 @@
 	description = "Extremely dangerous mobs climb out of a vent."
 	min_wizard_trigger_potency = 3
 	max_wizard_trigger_potency = 6
-	tags = list(TAG_COMMUNAL, TAG_COMBAT)
+	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
 
 /datum/round_event/vent_clog/extreme/setup()
 	. = ..()
