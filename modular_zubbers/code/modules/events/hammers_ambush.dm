@@ -1,0 +1,92 @@
+/datum/round_event_control/syndicate_assassination_attempt
+	name = "Syndicate Assasination Attempt"
+	typepath = /datum/round_event/syndicate_assassination_attempt
+	weight = 8
+	min_players = 30
+	max_occurrences = 4
+	earliest_start = 40 MINUTES
+	description = "Syndicate goons appear from a drop pod and attack a targeted player."
+	tags = list(TAG_COMBAT, TAG_NPC_ANTAG)
+
+///Spawns a cargo pod containing a random cargo supply pack on a random area of the station
+/datum/round_event/syndicate_assassination_attempt
+	var/mob/victim ///Randomly picked player
+	announce_chance = 100
+	///Admin setable override that is used instead of selecting a random location
+	var/atom/admin_override_turf
+	///types of syndies to send in
+	var/list/potential_assassins = list(
+		/mob/living/basic/trooper/syndicate/melee,\
+		/mob/living/basic/trooper/syndicate/melee/sword/space, \
+		/mob/living/basic/trooper/syndicate/melee/sword/space/stormtrooper,\
+		/mob/living/basic/trooper/syndicate/ranged, \
+		/mob/living/basic/trooper/syndicate/ranged/smg, \
+		/mob/living/basic/trooper/syndicate/ranged/shotgun/space, \
+	)
+	///how many syndies to send in
+	var/list/spawn_number = 5
+
+/datum/round_event/syndicate_assassination_attempt/announce(fake)
+	priority_announce("We are going to kill [victim]. This is a threat.", "The Syndicate", 'sound/announcer/announcement/announce_syndi.ogg', ANNOUNCEMENT_TYPE_SYNDICATE, has_important_message = TRUE, color_override = "red")
+
+/**
+* Tries to find a valid area, throws an error if none are found
+* Also randomizes the start timer
+*/
+/datum/round_event/syndicate_assassination_attempt/setup()
+	start_when = rand(20, 40)
+	victim = find_victim()
+	if(isnull(victim))
+		CRASH("No valid candidates for assassination found.")
+
+///Spawns a random supply pack, puts it in a pod, and spawns it on a random tile of the selected area
+/datum/round_event/syndicate_assassination_attempt/start()
+	var/obj/structure/closet/supplypod/pod = make_pod()
+	fill_pod(pod)
+	var/turf/landing_zone = get_turf(victim)
+
+	var/obj/effect/pod_landingzone/landing_marker = new(landing_zone, pod)
+	var/static/mutable_appearance/target_appearance = mutable_appearance('icons/obj/supplypods_32x32.dmi', "LZ")
+	notify_ghosts("[victim.name] is being attacked by syndicates!", source = victim, header = "Assassination in progress")
+
+/datum/round_event/syndicate_assassination_attempt/proc/find_victim()
+	var/list/candidates = list()
+	var/list/blacklisted_areas = get_blacklisted_areas()
+	for(var/mob/player as anything in GLOB.player_list)
+		if(player.has_faction(ROLE_SYNDICATE))
+			continue
+		var/area_type = get_area(player)
+		if(area_type in blacklisted_areas)
+			continue
+		if(is_station_level(player))
+		candidates += player
+
+	return pick(candidates)
+
+/datum/round_event/syndicate_assassination_attempt/proc/get_blacklisted_areas()
+	return GLOB.expected_erp_areas
+
+///Handles the creation of the pod, in case it needs to be modified beforehand
+/datum/round_event/syndicate_assassination_attempt/proc/make_pod()
+	var/obj/structure/closet/supplypod/S = new
+	S.set_style(/datum/pod_style/syndicate)
+	return S
+
+///Puts entities in the pod
+/datum/round_event/syndicate_assassination_attempt/proc/fill_pod(var/obj/structure/closet/supplypod)
+	var/spawntype
+	for(var/i = 0; i < spawn_number; i ++)
+		spawntype = pick(potential_assassins)
+		new spawntype(supplypod)
+
+///////////////////////////////////////////////////
+///////////////////// Hammers /////////////////////
+///////////////////////////////////////////////////
+
+/datum/round_event_control/syndicate_assassination_attempt/hammers
+	name = "Kill this guy with hammers"
+	typepath = /datum/round_event/syndicate_assassination_attempt
+	weight = 2
+	max_occurrences = 1
+	description = "Syndicate goons appear from a drop pod and attack a targeted player with hammers."
+	tags = list(TAG_COMBAT, TAG_NPC_ANTAG)

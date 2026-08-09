@@ -1,5 +1,5 @@
 /datum/round_event_control/stray_cargo/ape_escape
-	typepath = /datum/round_event/ape_escape
+	typepath = /datum/round_event/stray_cargo/ape_escape
 	weight = 2
 	min_players = 30
 	max_occurrences = 1
