@@ -27,7 +27,7 @@
 	var/list/spawn_number = 5
 
 /datum/round_event/syndicate_assassination_attempt/announce(fake)
-	priority_announce("We are going to kill [victim]. This is a threat.", "The Syndicate", 'sound/announcer/announcement/announce_syndi.ogg', ANNOUNCEMENT_TYPE_SYNDICATE, has_important_message = TRUE, color_override = "red")
+	priority_announce("Dear [victim], count your days left, because they are numbered. You're marked for death and we're here to collect.", "The Syndicate", 'sound/announcer/announcement/announce_syndi.ogg', ANNOUNCEMENT_TYPE_SYNDICATE, has_important_message = TRUE, color_override = "red")
 
 /**
 * Tries to find a valid area, throws an error if none are found
@@ -46,7 +46,9 @@
 	var/turf/landing_zone = get_turf(victim)
 
 	var/obj/effect/pod_landingzone/landing_marker = new(landing_zone, pod)
-	var/static/mutable_appearance/target_appearance = mutable_appearance('icons/obj/supplypods_32x32.dmi', "LZ")
+	alert_ghosts(victim)
+
+/datum/round_event/syndicate_assassination_attempt/proc/alert_ghosts(victim)
 	notify_ghosts("[victim.name] is being attacked by syndicates!", source = victim, header = "Assassination in progress")
 
 /datum/round_event/syndicate_assassination_attempt/proc/find_victim()
@@ -59,7 +61,7 @@
 		if(area_type in blacklisted_areas)
 			continue
 		if(is_station_level(player))
-		candidates += player
+			candidates += player
 
 	return pick(candidates)
 
@@ -83,10 +85,28 @@
 ///////////////////// Hammers /////////////////////
 ///////////////////////////////////////////////////
 
-/datum/round_event_control/syndicate_assassination_attempt/hammers
+/datum/round_event_control/kill_this_guy_with_hammers
 	name = "Kill this guy with hammers"
-	typepath = /datum/round_event/syndicate_assassination_attempt
-	weight = 2
+	typepath = /datum/round_event/syndicate_assassination_attempt/hammers
+	weight = 1
 	max_occurrences = 1
 	description = "Syndicate goons appear from a drop pod and attack a targeted player with hammers."
 	tags = list(TAG_COMBAT, TAG_NPC_ANTAG)
+
+/datum/round_event/syndicate_assassination_attempt/hammers
+	potential_assassins = list(
+		/mob/living/basic/trooper/syndicate/melee/hammer,\
+	)
+	var/list/spawn_number = 8
+
+/datum/round_event/syndicate_assassination_attempt/hammers/announce(fake)
+	priority_announce("We are going to kill [victim] with hammers. This is a threat.", "The Syndicate", 'sound/announcer/announcement/announce_syndi.ogg', ANNOUNCEMENT_TYPE_SYNDICATE, has_important_message = TRUE, color_override = "red")
+
+/mob/living/basic/trooper/syndicate/melee/hammer
+	melee_damage_lower = 25
+	melee_damage_upper = 25
+	attack_verb_continuous = "hammers"
+	attack_verb_simple = "hammer"
+	attack_sound = 'sound/items/weapons/sonic_jackhammer.ogg'
+	armour_penetration = 35
+	r_hand = /obj/item/melee/breaching_hammer
