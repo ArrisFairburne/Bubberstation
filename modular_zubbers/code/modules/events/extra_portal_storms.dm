@@ -3,9 +3,10 @@
 	typepath = /datum/round_event/portal_storm/lavaland
 	weight = 2
 	min_players = 15
-	earliest_start = 30 MINUTES
+	earliest_start = 50 MINUTES
 	category = EVENT_CATEGORY_ENTITIES
 	description = "Lavaland creatures pour out of portals."
+	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
 
 /datum/round_event/portal_storm/lavaland
 	boss_types = list(
@@ -24,10 +25,11 @@
 	name = "Portal Storm: Icemoon"
 	typepath = /datum/round_event/portal_storm/icemoon
 	weight = 2
-	min_players = 15
-	earliest_start = 30 MINUTES
+	min_players = 30
+	earliest_start = 50 MINUTES
 	category = EVENT_CATEGORY_ENTITIES
 	description = "Icemoon creatures pour out of portals."
+	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
 
 /datum/round_event/portal_storm/icemoon
 	boss_types = list(
