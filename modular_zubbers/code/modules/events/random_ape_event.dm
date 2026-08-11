@@ -1,4 +1,5 @@
 /datum/round_event_control/stray_cargo/ape_escape
+	name = "Escaped Gorilla Pod"
 	typepath = /datum/round_event/stray_cargo/ape_escape
 	weight = 2
 	min_players = 30
