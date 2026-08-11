@@ -6,6 +6,7 @@
 	max_occurrences = 1
 	earliest_start = 45 MINUTES
 	description = "Sends one violent gorilla to the station."
+	admin_setup = list(/datum/event_admin_setup/set_location/stray_cargo,)
 	min_wizard_trigger_potency = 3
 	max_wizard_trigger_potency = 6
 	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
