@@ -12,8 +12,6 @@
 /datum/round_event/syndicate_assassination_attempt
 	var/mob/victim ///Randomly picked player
 	announce_chance = 100
-	///Admin setable override that is used instead of selecting a random location
-	var/atom/admin_override_turf
 	///types of syndies to send in
 	var/list/potential_assassins = list(
 		/mob/living/basic/trooper/syndicate/melee,\
@@ -49,7 +47,7 @@
 	alert_ghosts(victim)
 
 /datum/round_event/syndicate_assassination_attempt/proc/alert_ghosts(victim)
-	notify_ghosts("[victim.name] is being attacked by syndicates!", source = victim, header = "Assassination in progress")
+	notify_ghosts("[victim.name] is being attacked by the syndicate!", source = victim, header = "Assassination in progress")
 
 /datum/round_event/syndicate_assassination_attempt/proc/find_victim()
 	var/list/candidates = list()
