@@ -1,20 +1,3 @@
-/datum/round_event_control/portal_storm_narsie
-	name = "Drop Troopers: Syndicate"
-	typepath = /datum/round_event/portal_storm/portal_storm_narsie
-	weight = 0
-	max_occurrences = 0
-	category = EVENT_CATEGORY_ENTITIES
-	description = "The Syndicate sends large numbers of drop pod soldiers to fight the station."
-	min_wizard_trigger_potency = 5
-	max_wizard_trigger_potency = 7
-
-/datum/round_event/portal_storm/portal_storm_narsie
-	boss_types = list(/mob/living/basic/construct/artificer/hostile = 6)
-	hostile_types = list(
-		/mob/living/basic/construct/juggernaut/hostile = 8,
-		/mob/living/basic/construct/wraith/hostile = 6,
-	)
-
 /datum/round_event/droppod_airraid
 	start_when = 180
 	end_when = 999
@@ -25,14 +8,14 @@
 	/// Lower and upper bounds of how many spawn waves to send in
 	var/spawn_wave_total_lower = 0
 	var/spawn_wave_total_upper = 0
-	/// The actual number of waves to send
-	var/spawn_waves = 0
 	/// What wave are we currently on?
 	var/current_wave = 0
-	/// Where do we spawn the pods?
-	var/area/current_spawn_area
+	/// Which wave are we going to announce next?
+	var/wave_to_announce = 0
 	/// Complete list of valid droppod areas
 	var/static/list/valid_spawn_areas
+	/// Selected spawn areas for this event to drop mobs into
+	var/list/selected_spawn_areas
 	/// Number of spawns in a drop pod
 	var/droppod_density = 0
 	/// Enemy types; spawn during normal waves
@@ -43,8 +26,15 @@
 	var/max_boss_pods = 1
 	/// Helps calculate the time between droppod waves, multiplied against the current number of droppods
 	var/time_to_next_wave_droppod_factor = 50
+	/// Minimum time between droppods
+	var/min_time_between_droppod_waves = 60
 	/// When the next incident should happen
 	var/next_incidence_time = 0
+	/// When the next announcement should happen
+	var/next_announce_time = 0
+	/// Range of time to potentially announce the next wave (can be more or less than actual wave time)
+	var/min_announce_delay = -30
+	var/max_announce_delay = 30
 
 	/// Style of droppod to send
 	var/droppod_style
@@ -53,8 +43,8 @@
 	var/min_droppod_dropdelay = 30
 
 /datum/round_event/droppod_airraid/setup()
-	spawn_waves = rand(spawn_wave_total_lower, spawn_wave_total_upper)
 	generate_valid_areas()
+	choose_droppod_areas()
 
 /datum/round_event/droppod_airraid/proc/generate_valid_areas()
 	if(isnull(valid_spawn_areas))
@@ -73,29 +63,46 @@
 
 		valid_spawn_areas = make_associative(GLOB.the_station_areas) - blacklisted_areas + whitelisted_areas
 
+/datum/round_event/droppod_airraid/proc/choose_droppod_areas()
+	var/number_waves_to_send = rand(spawn_wave_total_lower, spawn_wave_total_upper)
+	while(length(selected_spawn_areas) < number_waves_to_send)
+		selected_spawn_areas[length(selected_spawn_areas) + 1] = pick(valid_spawn_areas)
+
 /datum/round_event/droppod_airraid/tick()
-	if(activeFor == next_incidence_time)
-		if(current_wave < spawn_waves)
+	if(!is_event_over())
+		if(activeFor == next_announce_time)
+			announce_wave()
+		if(activeFor == next_incidence_time)
 			send_droppod_wave()
-		else
+	else
+		if(activeFor == next_incidence_time)
 			end_event()
+
+/datum/round_event/droppod_airraid/proc/is_event_over()
+	return current_wave > length(selected_spawn_areas)
+
+/datum/round_event/droppod_airraid/proc/announce_wave()
+	priority_announce(get_announce_wave_text())
+	after_wave_announce()
+
+/datum/round_event/droppod_airraid/proc/get_announce_wave_text()
+	return "Pod landing signatures detected at: [selected_spawn_areas[wave_to_announce]]"
+
+/datum/round_event/droppod_airraid/proc/after_wave_announce()
+	wave_to_announce++
 
 /datum/round_event/droppod_airraid/proc/send_droppod_wave()
 	var/list/droppod_list
 	var/number_bosspods_sent = 0
 
-	current_spawn_area = select_droppod_area()
 	droppod_list = generate_droppods()
 	for(var/pod in droppod_list)
-		if(i == spawn_waves && number_bosspods_sent < max_boss_pods)
+		if(i == length(selected_spawn_areas) && number_bosspods_sent < max_boss_pods)
 			fill_bosspod(pod)
 		else
 			fill_droppod(pod)
 	send_droppods(droppod_list)
 	after_wave(length(droppod_list))
-
-/datum/round_event/droppod_airraid/proc/select_droppod_area()
-	return pick(valid_spawn_areas)
 
 /datum/round_event/droppod_airraid/proc/generate_droppods()
 	. = list()
@@ -104,7 +111,10 @@
 		. += generate_one_droppod()
 
 /datum/round_event/droppod_airraid/proc/get_droppod_count()
-	return ceil(current_spawn_area.areasize / turf_droppods_ratio)
+	return ceil(get_current_wave().areasize / turf_droppods_ratio)
+
+/datum/round_event/droppod_airraid/proc/get_current_wave()
+	return selected_spawn_areas[current_wave]
 
 /datum/round_event/droppod_airraid/proc/generate_one_droppod()
 	var/obj/structure/closet/supplypod/pod = new /obj/structure/closet/supplypod
@@ -116,63 +126,143 @@
 /datum/round_event/droppod_airraid/proc/fill_droppod(obj/structure/pod)
 	var/mob/enemy
 	for(var/i = 0; i < droppod_density; i ++)
-		enemy = new pick(enemy_types)
+		enemy = new_enemy_spawn()
 		enemy.forceMove(pod)
+
+/datum/round_event/droppod_airraid/proc/new_enemy_spawn()
+	return new pick(enemy_types)
 
 /datum/round_event/droppod_airraid/proc/fill_bosspod(obj/structure/pod)
 	var/mob/enemy
 	for(var/i = 0; i < droppod_density; i ++)
 		if(i == 0 && boss_types.len > 0)
-			enemy = new pick(boss_types)`
+			enemy = new_boss_spawn()
 		else
-			enemy = new pick(enemy_types)
+			enemy = new_enemy_spawn()
 		enemy.forceMove(pod)
+
+/datum/round_event/droppod_airraid/proc/new_boss_spawn()
+	return new pick(boss_types)
 
 /datum/round_event/droppod_airraid/proc/after_wave(droppod_count)
 	current_wave++
-	next_incidence_time = activeFor + calculate_time_to_next_wave(droppod_count)
+	next_incidence_time = activeFor + calculate_time_to_next_wave(droppod_count) + min_time_between_droppod_waves
+	next_announce_time = activeFor + calculate_time_to_next_wave(droppod_count) + min_time_between_droppod_waves + rand(min_announce_delay, max_announce_delay)
 
 /datum/round_event/droppod_airraid/proc/calculate_time_to_next_wave(current_droppod_count)
-	return current_droppod_count * time_to_next_wave_droppod_factor + 60
+	return current_droppod_count * time_to_next_wave_droppod_factor + min_time_between_droppod_waves
 
 /datum/round_event/droppod_airraid/proc/end_event()
 	announce_end()
 	end_when = activeFor
 
 /datum/round_event/droppod_airraid/proc/announce_end()
-	priority_announce("Alert! The Syndicate is sending orbital drop shock troopers to [GLOB.station_name]. Please brace for impact.", "Incoming Enemy Signatures", 'sound/announcer/alarm/airraid.ogg',color_override = "red")
+	stack_trace("[src] lacks an end announcement!")
+
 
 //////////////////////////////////////
 /////////////// SYNDIE ///////////////
 //////////////////////////////////////
 
-/datum/round_event_control/portal_storm_narsie
+/datum/round_event_control/drop_troopers_syndicate
 	name = "Drop Troopers: Syndicate"
 	typepath = /datum/round_event/droppod_airraid/syndicate
-	weight = 4
+	weight = 6
 	max_occurrences = 2
 	min_players = 30
 	category = EVENT_CATEGORY_ENTITIES
 	description = "The Syndicate sends large numbers of drop pod soldiers to fight the station."`
 
-/datum/round_event/portal_storm/tick()
-	spawn_effects(get_random_station_turf())
+/datum/round_event/droppod_airraid/syndicate
+	turf_droppods_ratio = 50
+	spawn_wave_total_lower = 3
+	spawn_wave_total_upper = 5
+	droppod_density = 3
+	enemy_types = list(
+		/mob/living/basic/viscerator, \
+		/mob/living/basic/trooper/syndicate/melee,\
+		/mob/living/basic/trooper/syndicate/melee/sword/space, \
+		/mob/living/basic/trooper/syndicate/ranged, \
+		/mob/living/basic/trooper/syndicate/ranged/smg, \
+		/mob/living/basic/trooper/syndicate/ranged/shotgun/space, \
+	)
+	boss_types = list(
+		/mob/living/basic/trooper/syndicate/melee/sword/space/stormtrooper, \
+		/mob/living/basic/trooper/syndicate/ranged/shotgun/space/stormtrooper, \
+		/mob/living/basic/trooper/syndicate/ranged/smg/space/stormtrooper, \
+		/mob/living/basic/bot/secbot/grievous, \
+	)
+	max_boss_pods = 1
+	time_to_next_wave_droppod_factor = 50
 
-	if(spawn_hostile() && length(hostile_types))
-		var/type = pick(hostile_types)
-		hostile_types[type] = hostile_types[type] - 1
-		spawn_mob(type, hostiles_spawn)
-		if(!hostile_types[type])
-			hostile_types -= type
+	droppod_style = /datum/pod_style/syndicate
+	max_droppod_dropdelay = 10
+	min_droppod_dropdelay = 30
 
-	if(spawn_boss() && length(boss_types))
-		var/type = pick(boss_types)
-		boss_types[type] = boss_types[type] - 1
-		spawn_mob(type, boss_spawn)
-		if(!boss_types[type])
-			boss_types -= type
-
-	time_to_end()
 /datum/round_event/droppod_airraid/syndicate/announce(fake)
 	priority_announce("Alert! The Syndicate is sending orbital drop shock troopers to [GLOB.station_name]. Please brace for impact.", "Incoming Enemy Signatures", 'sound/announcer/alarm/airraid.ogg',color_override = "red")
 
+/datum/round_event/droppod_airraid/syndicate/new_boss_spawn()
+	. = ..()
+	if(istype(., /mob/living/basic/bot/secbot/grievous))
+		var/mob/living/basic/bot/secbot/grievous = .
+		grievous.emag_act()
+		grievous.emag_act() //need to double up cause the first one only unlocks it
+		grievous.add_faction(ROLE_SYNDICATE)
+
+/datum/round_event/droppod_airraid/syndicate/announce_end()
+	priority_announce("The Syndicate attack on [GLOB.station_name] has ceased. Please calmly return to your work tasks.")
+
+////////////////////////////////////////
+
+/datum/round_event_control/drop_troopers_syndicate_lesser
+	name = "Drop Troopers: Syndicate (Lesser)"
+	typepath = /datum/round_event/droppod_airraid/syndicate/lesser
+	weight = 4
+	max_occurrences = 2
+	min_players = 12
+	category = EVENT_CATEGORY_ENTITIES
+	description = "The Syndicate sends small numbers of drop pod soldiers to fight the station."`
+
+/datum/round_event/droppod_airraid/syndicate/lesser
+	turf_droppods_ratio = 50
+	spawn_wave_total_lower = 1
+	spawn_wave_total_upper = 3
+	droppod_density = 1
+	boss_types = list()
+	max_boss_pods = 0
+	time_to_next_wave_droppod_factor = 50
+
+/datum/round_event/droppod_airraid/syndicate/lesser/announce(fake)
+	priority_announce("Alert! The Syndicate is sending a skirmishing party to [GLOB.station_name]. Please brace for impact.", "Incoming Enemy Scouts", 'sound/announcer/alarm/airraid.ogg', color_override = "orange")
+
+//////////////////////////////////////
+//////////////// BOTS ////////////////
+//////////////////////////////////////
+
+/datum/round_event_control/drop_troopers_hivebots
+	name = "Drop Troopers: Hivebots"
+	typepath = /datum/round_event/droppod_airraid/hivebots
+	weight = 5
+	max_occurrences = 2
+	min_players = 30
+	category = EVENT_CATEGORY_ENTITIES
+	description = "A fleet of autonomous robot invaders attacks the station."
+
+/datum/round_event/droppod_airraid/hivebots
+	turf_droppods_ratio = 50
+	spawn_wave_total_lower = 3
+	spawn_wave_total_upper = 5
+	droppod_density = 5
+	enemy_types = list(
+		/mob/living/basic/hivebot/range, \
+		/mob/living/basic/hivebot/rapid, \
+		/mob/living/basic/hivebot/strong, \
+		/mob/living/basic/hivebot/mechanic, \
+	)
+	max_boss_pods = 0
+	time_to_next_wave_droppod_factor = 50
+
+	droppod_style = /datum/pod_style/missile
+	max_droppod_dropdelay = 10
+	min_droppod_dropdelay = 30

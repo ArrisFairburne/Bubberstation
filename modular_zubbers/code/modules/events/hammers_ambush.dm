@@ -43,7 +43,8 @@
 	fill_pod(pod)
 	var/turf/landing_zone = get_turf(victim)
 
-	var/obj/effect/pod_landingzone/landing_marker = new(landing_zone, pod)
+	new /obj/effect/pod_landingzone (landing_zone, pod)
+
 	alert_ghosts(victim)
 
 /datum/round_event/syndicate_assassination_attempt/proc/alert_ghosts(mob/victim)
@@ -58,8 +59,9 @@
 		var/area_type = get_area(player)
 		if(area_type in blacklisted_areas)
 			continue
-		if(is_station_level(player))
-			candidates += player
+		if(!is_station_level(get_turf(player).z))
+			continue
+		candidates += player
 
 	return pick(candidates)
 

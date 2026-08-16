@@ -7,8 +7,7 @@
 	earliest_start = 45 MINUTES
 	description = "Sends one violent gorilla to the station."
 	admin_setup = list(/datum/event_admin_setup/set_location/stray_cargo,)
-	min_wizard_trigger_potency = 3
-	max_wizard_trigger_potency = 6
+	category = EVENT_CATEGORY_ENTITIES
 	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
 
 /datum/round_event/stray_cargo/ape_escape
@@ -26,7 +25,7 @@
 /datum/round_event/stray_cargo/ape_escape/make_pod()
 	var/obj/structure/closet/supplypod/S = new
 	S.set_style(/datum/pod_style/centcom)
-	var/mob/gori = new spawned_mob(S)
+	new spawned_mob(S)
 	return S
 
 /mob/living/basic/gorilla/dangerous
