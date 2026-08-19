@@ -37,10 +37,13 @@
 	var/max_announce_delay = 30
 
 	/// Style of droppod to send
-	var/droppod_style
+	var/datum/pod_style/droppod_style
 	/// min and max time for droppods to send (for how long they take to reach destination)
 	var/max_droppod_dropdelay = 10
 	var/min_droppod_dropdelay = 30
+
+	//admin override spawn areas
+	var/list/admin_override_selected_spawn_areas
 
 /datum/round_event/droppod_airraid/setup()
 	generate_valid_areas()
@@ -64,9 +67,12 @@
 		valid_spawn_areas = make_associative(GLOB.the_station_areas) - blacklisted_areas + whitelisted_areas
 
 /datum/round_event/droppod_airraid/proc/choose_droppod_areas()
-	var/number_waves_to_send = rand(spawn_wave_total_lower, spawn_wave_total_upper)
-	while(length(selected_spawn_areas) < number_waves_to_send)
-		selected_spawn_areas[length(selected_spawn_areas) + 1] = pick(valid_spawn_areas)
+	if(!isnull(admin_override_selected_spawn_areas) && length(admin_override_selected_spawn_areas) > 0)
+		selected_spawn_areas = admin_override_selected_spawn_areas
+	else
+		var/number_waves_to_send = rand(spawn_wave_total_lower, spawn_wave_total_upper)
+		while(length(selected_spawn_areas) < number_waves_to_send)
+			selected_spawn_areas[length(selected_spawn_areas) + 1] = pick(valid_spawn_areas)
 
 /datum/round_event/droppod_airraid/tick()
 	if(!is_event_over())
@@ -86,7 +92,7 @@
 	after_wave_announce()
 
 /datum/round_event/droppod_airraid/proc/get_announce_wave_text()
-	return "Pod landing signatures detected at: [selected_spawn_areas[wave_to_announce]]"
+	return "Drop Pod trajectories calculated enroute to: [selected_spawn_areas[wave_to_announce]]"
 
 /datum/round_event/droppod_airraid/proc/after_wave_announce()
 	wave_to_announce++
@@ -145,9 +151,11 @@
 	return new pick(boss_types)
 
 /datum/round_event/droppod_airraid/proc/after_wave(droppod_count)
+	var/static/mutable_appearance/ghost_icon_appearance = mutable_appearance(/obj/structure/closet/supplypod::icon, droppod_style::icon_state)
+	notify_ghosts("A droppod wave is attacking [selected_spawn_areas[current_wave]]!", source = selected_spawn_areas[current_wave], header = "Invasion in progress", alert_overlay = ghost_icon_appearance)
 	current_wave++
-	next_incidence_time = activeFor + calculate_time_to_next_wave(droppod_count) + min_time_between_droppod_waves
-	next_announce_time = activeFor + calculate_time_to_next_wave(droppod_count) + min_time_between_droppod_waves + rand(min_announce_delay, max_announce_delay)
+	next_incidence_time = activeFor + calculate_time_to_next_wave(droppod_count)
+	next_announce_time = activeFor + calculate_time_to_next_wave(droppod_count) + rand(min_announce_delay, max_announce_delay)
 
 /datum/round_event/droppod_airraid/proc/calculate_time_to_next_wave(current_droppod_count)
 	return current_droppod_count * time_to_next_wave_droppod_factor + min_time_between_droppod_waves
@@ -159,6 +167,29 @@
 /datum/round_event/droppod_airraid/proc/announce_end()
 	stack_trace("[src] lacks an end announcement!")
 
+/////////////// adminbus customization ///////////////
+
+/datum/event_admin_setup/multiple_choice/droppod_troopers
+	input_text = "Select locations to send the droppods."
+	min_choices = 0
+
+/datum/event_admin_setup/multiple_choice/droppod_troopers/prompt_admins()
+	var/customize_mutations = tgui_alert(usr, "Select locations?", event_control.name, list("Custom", "Random", "Cancel"))
+	switch(customize_mutations)
+		if("Custom")
+			return ..()
+		if("Cancel")
+			return ADMIN_CANCEL_EVENT
+		else
+			//nothing happens, use the round_event code to gen random locations
+			choices = list()
+
+/datum/event_admin_setup/multiple_choice/droppod_troopers/get_options()
+	return GLOB.the_station_areas
+
+/datum/event_admin_setup/multiple_choice/droppod_troopers/apply_to_event(datum/round_event/droppod_airraid/event)
+	if(length(choices) > 0)
+		event.admin_override_selected_spawn_areas = choices
 
 //////////////////////////////////////
 /////////////// SYNDIE ///////////////
@@ -166,12 +197,15 @@
 
 /datum/round_event_control/drop_troopers_syndicate
 	name = "Drop Troopers: Syndicate"
+	description = "The Syndicate sends large numbers of drop pod soldiers to fight the station."
 	typepath = /datum/round_event/droppod_airraid/syndicate
 	weight = 6
 	max_occurrences = 2
-	min_players = 30
+	min_players = 35
+	admin_setup = list(/datum/event_admin_setup/multiple_choice/droppod_troopers)
 	category = EVENT_CATEGORY_ENTITIES
-	description = "The Syndicate sends large numbers of drop pod soldiers to fight the station."`
+	track = EVENT_TRACK_MAJOR
+	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
 
 /datum/round_event/droppod_airraid/syndicate
 	turf_droppods_ratio = 50
@@ -217,12 +251,12 @@
 
 /datum/round_event_control/drop_troopers_syndicate_lesser
 	name = "Drop Troopers: Syndicate (Lesser)"
+	description = "The Syndicate sends small numbers of drop pod soldiers to fight the station."
 	typepath = /datum/round_event/droppod_airraid/syndicate/lesser
 	weight = 4
-	max_occurrences = 2
+	max_occurrences = 1
 	min_players = 12
 	category = EVENT_CATEGORY_ENTITIES
-	description = "The Syndicate sends small numbers of drop pod soldiers to fight the station."`
 
 /datum/round_event/droppod_airraid/syndicate/lesser
 	turf_droppods_ratio = 50
@@ -242,12 +276,13 @@
 
 /datum/round_event_control/drop_troopers_hivebots
 	name = "Drop Troopers: Hivebots"
-	typepath = /datum/round_event/droppod_airraid/hivebots
-	weight = 5
-	max_occurrences = 2
-	min_players = 30
-	category = EVENT_CATEGORY_ENTITIES
 	description = "A fleet of autonomous robot invaders attacks the station."
+	typepath = /datum/round_event/droppod_airraid/hivebots
+	weight = 4
+	max_occurrences = 2
+	min_players = 35
+	admin_setup = list(/datum/event_admin_setup/multiple_choice/droppod_troopers)
+	category = EVENT_CATEGORY_ENTITIES
 
 /datum/round_event/droppod_airraid/hivebots
 	turf_droppods_ratio = 50
