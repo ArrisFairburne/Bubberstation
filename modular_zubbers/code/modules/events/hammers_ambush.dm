@@ -25,6 +25,8 @@
 	var/spawn_number = 5
 
 /datum/round_event/syndicate_assassination_attempt/announce(fake)
+	if(fake)
+		victim = pick(GLOB.player_list)
 	priority_announce("Dear [victim], count your days left, because they are numbered. You're marked for death and we're here to collect.", "The Syndicate", 'sound/announcer/announcement/announce_syndi.ogg', ANNOUNCEMENT_TYPE_SYNDICATE, has_important_message = TRUE, color_override = "red")
 
 /**
