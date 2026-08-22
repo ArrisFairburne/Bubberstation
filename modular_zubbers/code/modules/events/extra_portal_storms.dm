@@ -41,3 +41,21 @@
 		/mob/living/basic/mining/legion = 2,
 		/mob/living/basic/mining/wolf = 5
 	)
+
+/datum/round_event_control/portal_storm_xen
+	name = "Portal Storm: Xen"
+	typepath = /datum/round_event/portal_storm/xen
+	weight = 2
+	min_players = 30
+	earliest_start = 50 MINUTES
+	category = EVENT_CATEGORY_ENTITIES
+	description = "Xen creatures pour out of portals."
+	tags = list(TAG_COMMUNAL, TAG_COMBAT, TAG_NPC_ANTAG)
+
+/datum/round_event/portal_storm/xen
+	hostile_types = list(
+		/mob/living/basic/blackmesa/xen/headcrab_zombie = 4,
+		/mob/living/basic/blackmesa/xen/vortigaunt = 3
+		/mob/living/basic/blackmesa/xen/bullsquid = 2,
+		/mob/living/basic/blackmesa/xen/houndeye = 2,
+	)
