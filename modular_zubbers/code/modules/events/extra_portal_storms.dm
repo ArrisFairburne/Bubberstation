@@ -55,7 +55,7 @@
 /datum/round_event/portal_storm/xen
 	hostile_types = list(
 		/mob/living/basic/blackmesa/xen/headcrab_zombie = 4,
-		/mob/living/basic/blackmesa/xen/vortigaunt = 3
+		/mob/living/basic/blackmesa/xen/vortigaunt = 3,
 		/mob/living/basic/blackmesa/xen/bullsquid = 2,
 		/mob/living/basic/blackmesa/xen/houndeye = 2,
 	)

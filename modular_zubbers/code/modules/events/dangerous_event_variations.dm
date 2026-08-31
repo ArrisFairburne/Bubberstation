@@ -1,4 +1,5 @@
 /datum/round_event_control/vent_clog/extreme
+	name = "Vent Clog: Extreme"
 	typepath = /datum/round_event/vent_clog/extreme
 	weight = 8
 	min_players = 30

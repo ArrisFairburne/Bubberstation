@@ -1,5 +1,5 @@
 /datum/round_event/droppod_airraid
-	start_when = 180
+	start_when = 50
 	end_when = 999
 	announce_when = 1
 
@@ -9,13 +9,13 @@
 	var/spawn_wave_total_lower = 0
 	var/spawn_wave_total_upper = 0
 	/// What wave are we currently on?
-	var/current_wave = 0
+	var/current_wave = 1
 	/// Which wave are we going to announce next?
-	var/wave_to_announce = 0
+	var/wave_to_announce = 1
 	/// Complete list of valid droppod areas
 	var/static/list/valid_spawn_areas
 	/// Selected spawn areas for this event to drop mobs into
-	var/list/selected_spawn_areas
+	var/list/selected_spawn_areas = list()
 	/// Number of spawns in a drop pod
 	var/droppod_density = 0
 	/// Enemy types; spawn during normal waves
@@ -25,9 +25,9 @@
 	/// Maximum number of boss pods to send in the final wave
 	var/max_boss_pods = 1
 	/// Helps calculate the time between droppod waves, multiplied against the current number of droppods
-	var/time_to_next_wave_droppod_factor = 50
+	var/time_to_next_wave_droppod_factor = 20
 	/// Minimum time between droppods
-	var/min_time_between_droppod_waves = 60
+	var/min_time_between_droppod_waves = 30
 	/// When the next incident should happen
 	var/next_incidence_time = 0
 	/// When the next announcement should happen
@@ -64,7 +64,7 @@
 		blacklisted_areas += GLOB.expected_erp_areas
 		blacklisted_areas += /area/station/maintenance
 
-		valid_spawn_areas = make_associative(GLOB.the_station_areas) - blacklisted_areas + whitelisted_areas
+		valid_spawn_areas = typecache_filter_list(GLOB.areas, make_associative(GLOB.the_station_areas) - blacklisted_areas + whitelisted_areas)
 
 /datum/round_event/droppod_airraid/proc/choose_droppod_areas()
 	if(!isnull(admin_override_selected_spawn_areas) && length(admin_override_selected_spawn_areas) > 0)
@@ -72,7 +72,20 @@
 	else
 		var/number_waves_to_send = rand(spawn_wave_total_lower, spawn_wave_total_upper)
 		while(length(selected_spawn_areas) < number_waves_to_send)
-			selected_spawn_areas[length(selected_spawn_areas) + 1] = pick(valid_spawn_areas)
+			selected_spawn_areas += pick(valid_spawn_areas)
+
+
+/datum/round_event/droppod_airraid/start()
+	set_next_announce_time()
+	set_next_incident_time()
+
+/datum/round_event/droppod_airraid/proc/set_next_announce_time()
+	var/droppod_count = get_droppod_count()
+	next_announce_time = activeFor + calculate_time_to_next_wave(droppod_count) + rand(min_announce_delay, max_announce_delay)
+
+/datum/round_event/droppod_airraid/proc/set_next_incident_time()
+	var/droppod_count = get_droppod_count()
+	next_incidence_time = activeFor + calculate_time_to_next_wave(droppod_count)
 
 /datum/round_event/droppod_airraid/tick()
 	if(!is_event_over())
@@ -92,19 +105,23 @@
 	after_wave_announce()
 
 /datum/round_event/droppod_airraid/proc/get_announce_wave_text()
-	return "Drop Pod trajectories calculated enroute to: [selected_spawn_areas[wave_to_announce]]"
+	return "Drop Pod trajectories calculated enroute to: [selected_spawn_areas[wave_to_announce].name]"
 
 /datum/round_event/droppod_airraid/proc/after_wave_announce()
 	wave_to_announce++
+	set_next_announce_time()
 
 /datum/round_event/droppod_airraid/proc/send_droppod_wave()
 	var/list/droppod_list
 	var/number_bosspods_sent = 0
 
 	droppod_list = generate_droppods()
-	for(var/pod in droppod_list)
-		if(i == length(selected_spawn_areas) && number_bosspods_sent < max_boss_pods)
+	var/pod
+	for(var/i = 1; i < droppod_list.len; i ++)
+		pod = droppod_list[i]
+		if(current_wave == length(selected_spawn_areas) && number_bosspods_sent < max_boss_pods)
 			fill_bosspod(pod)
+			number_bosspods_sent ++
 		else
 			fill_droppod(pod)
 	send_droppods(droppod_list)
@@ -112,8 +129,8 @@
 
 /datum/round_event/droppod_airraid/proc/generate_droppods()
 	. = list()
-	number_droppods = get_droppod_count()
-	while(var/i = 0; i < number_droppods; i ++)
+	var/number_droppods = get_droppod_count()
+	for(var/i = 0; i < number_droppods; i ++)
 		. += generate_one_droppod()
 
 /datum/round_event/droppod_airraid/proc/get_droppod_count()
@@ -135,8 +152,9 @@
 		enemy = new_enemy_spawn()
 		enemy.forceMove(pod)
 
-/datum/round_event/droppod_airraid/proc/new_enemy_spawn()
-	return new pick(enemy_types)
+/datum/round_event/droppod_airraid/proc/new_enemy_spawn(obj/pod)
+	. = pick(enemy_types)
+	. = new .(pod)
 
 /datum/round_event/droppod_airraid/proc/fill_bosspod(obj/structure/pod)
 	var/mob/enemy
@@ -147,15 +165,31 @@
 			enemy = new_enemy_spawn()
 		enemy.forceMove(pod)
 
-/datum/round_event/droppod_airraid/proc/new_boss_spawn()
-	return new pick(boss_types)
+/datum/round_event/droppod_airraid/proc/new_boss_spawn(obj/pod)
+	. = pick(boss_types)
+	. = new .(pod)
 
-/datum/round_event/droppod_airraid/proc/after_wave(droppod_count)
-	var/static/mutable_appearance/ghost_icon_appearance = mutable_appearance(/obj/structure/closet/supplypod::icon, droppod_style::icon_state)
-	notify_ghosts("A droppod wave is attacking [selected_spawn_areas[current_wave]]!", source = selected_spawn_areas[current_wave], header = "Invasion in progress", alert_overlay = ghost_icon_appearance)
+/datum/round_event/droppod_airraid/proc/send_droppods(droppod_list)
+	var/turf/landing_zone
+	for(var/obj/structure/closet/supplypod/pod in droppod_list)
+		landing_zone = get_landing_zone()
+		new /obj/effect/pod_landingzone(landing_zone, pod)
+
+/datum/round_event/droppod_airraid/proc/get_landing_zone(area/to_send)
+	var/list/turf/valid_turfs = get_area_turfs(get_current_wave())
+	//Only target non-dense turfs to prevent wall-embedded pods
+	for(var/i in valid_turfs)
+		var/turf/T = i
+		if(T.density)
+			valid_turfs -= T
+	return pick(valid_turfs)
+
+/datum/round_event/droppod_airraid/proc/after_wave()
+	var/obj/structure/closet/supplypod/pod = generate_one_droppod()
+	notify_ghosts("A droppod wave is attacking [selected_spawn_areas[current_wave].name]!", source = selected_spawn_areas[current_wave], header = "Invasion in progress", alert_overlay = pod.appearance)
+	qdel(pod)
 	current_wave++
-	next_incidence_time = activeFor + calculate_time_to_next_wave(droppod_count)
-	next_announce_time = activeFor + calculate_time_to_next_wave(droppod_count) + rand(min_announce_delay, max_announce_delay)
+	set_next_incident_time()
 
 /datum/round_event/droppod_airraid/proc/calculate_time_to_next_wave(current_droppod_count)
 	return current_droppod_count * time_to_next_wave_droppod_factor + min_time_between_droppod_waves
@@ -227,7 +261,7 @@
 		/mob/living/basic/bot/secbot/grievous, \
 	)
 	max_boss_pods = 1
-	time_to_next_wave_droppod_factor = 50
+	time_to_next_wave_droppod_factor = 20
 
 	droppod_style = /datum/pod_style/syndicate
 	max_droppod_dropdelay = 10

@@ -61,7 +61,7 @@
 		var/area_type = get_area(player)
 		if(area_type in blacklisted_areas)
 			continue
-		if(!is_station_level(get_turf(player).z))
+		if(!is_station_level(player.z))
 			continue
 		candidates += player
 
