@@ -34,7 +34,7 @@
 	var/next_announce_time = 0
 	/// Range of time to potentially announce the next wave (can be more or less than actual wave time)
 	var/min_announce_delay = -30
-	var/max_announce_delay = 30
+	var/max_announce_delay = 10
 
 	/// Style of droppod to send
 	var/datum/pod_style/droppod_style
@@ -76,8 +76,10 @@
 
 
 /datum/round_event/droppod_airraid/start()
-	set_next_announce_time()
-	set_next_incident_time()
+	next_announce_time = activeFor + 45
+	next_incidence_time = activeFor + rand(-10, 10)
+	//set_next_announce_time()
+	//set_next_incident_time()
 
 /datum/round_event/droppod_airraid/proc/set_next_announce_time()
 	var/droppod_count = get_droppod_count()
@@ -117,7 +119,7 @@
 
 	droppod_list = generate_droppods()
 	var/pod
-	for(var/i = 1; i < droppod_list.len; i ++)
+	for(var/i = 1; i <= droppod_list.len; i ++)
 		pod = droppod_list[i]
 		if(current_wave == length(selected_spawn_areas) && number_bosspods_sent < max_boss_pods)
 			fill_bosspod(pod)
@@ -149,8 +151,7 @@
 /datum/round_event/droppod_airraid/proc/fill_droppod(obj/structure/pod)
 	var/mob/enemy
 	for(var/i = 0; i < droppod_density; i ++)
-		enemy = new_enemy_spawn()
-		enemy.forceMove(pod)
+		enemy = new_enemy_spawn(pod)
 
 /datum/round_event/droppod_airraid/proc/new_enemy_spawn(obj/pod)
 	. = pick(enemy_types)
@@ -160,10 +161,9 @@
 	var/mob/enemy
 	for(var/i = 0; i < droppod_density; i ++)
 		if(i == 0 && boss_types.len > 0)
-			enemy = new_boss_spawn()
+			enemy = new_boss_spawn(pod)
 		else
-			enemy = new_enemy_spawn()
-		enemy.forceMove(pod)
+			enemy = new_enemy_spawn(pod)
 
 /datum/round_event/droppod_airraid/proc/new_boss_spawn(obj/pod)
 	. = pick(boss_types)
@@ -291,6 +291,7 @@
 	max_occurrences = 1
 	min_players = 12
 	category = EVENT_CATEGORY_ENTITIES
+	track = EVENT_TRACK_MAJOR
 
 /datum/round_event/droppod_airraid/syndicate/lesser
 	turf_droppods_ratio = 50
@@ -317,6 +318,7 @@
 	min_players = 35
 	admin_setup = list(/datum/event_admin_setup/multiple_choice/droppod_troopers)
 	category = EVENT_CATEGORY_ENTITIES
+	track = EVENT_TRACK_MAJOR
 
 /datum/round_event/droppod_airraid/hivebots
 	turf_droppods_ratio = 50
