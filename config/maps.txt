@@ -19,6 +19,7 @@ endmap
 
 map deltastation
 	votable
+    minplayers 15
 	webmap_url https://webmap.affectedarc07.co.uk/maps/tgstation/deltastation/
 endmap
 
@@ -39,6 +40,7 @@ endmap
 map tramstation
 	votable
 	webmap_url https://webmap.affectedarc07.co.uk/maps/tgstation/tramstation/
+    minplayers 20
 endmap
 
 map nebulastation
@@ -47,7 +49,7 @@ endmap
 
 map kilostation
 	votable
-	maxplayers 40
+	maxplayers 25
 endmap
 
 # Bubberstation maps.
@@ -55,11 +57,13 @@ endmap
 map biodome
 	votable
 	webmap_url https://webmap.affectedarc07.co.uk/maps/bubber/biodome/
+    minplayers 20
 endmap
 
 map blueshift
 	votable
 	webmap_url https://webmap.affectedarc07.co.uk/maps/bubber/blueshift/
+    minplayers 40
 endmap
 
 map boxstation
@@ -75,6 +79,7 @@ endmap
 map moonstation
 	votable
 	webmap_url https://webmap.affectedarc07.co.uk/maps/bubber/moonstation/
+    minplayers 20
 endmap
 
 map voidraptor
@@ -85,6 +90,7 @@ endmap
 map northstar
 	votable
 	webmap_url https://webmap.affectedarc07.co.uk/maps/tgstation/northstar/
+    minplayers 25
 endmap
 
 # Debug-only maps.
